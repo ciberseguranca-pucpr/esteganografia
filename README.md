@@ -61,7 +61,7 @@ python -m steg [FLAGS]
 Onde ```[FLAGS]``` são as opções disponíveis da ferramenta. Vamos dar uma olhada em todas elas.
 
 ```text
-usage: steg [-h] -i IMAGEM_ENTRADA [-o IMAGEM_SAIDA] -f {esconder,revelar}
+usage: steg [-h] -i IMAGEM_ENTRADA [-o IMAGEM_SAIDA] -f {esconder,revelar} [-t]
 
 options:
   -h, --help            show this help message and exit
@@ -69,9 +69,11 @@ options:
   -o IMAGEM_SAIDA       Caminho para a imagem com texto escondido
   -f {esconder,revelar}
                         Ação que deseja realizar
+  -t                    Flag que especifica se deseja esconder um texto ou imagem
 ```
+## Texto
 
-## Escondendo texto em uma imagem
+### Escondendo texto em uma imagem
 Para esconder algum texto em uma imagem você deverá fornecer uma imagem como base presente no seu computador. Assim, ele irá inserir o texto digitado na imagem resultante. Veja o comando a seguir:
 
 ```sh
@@ -85,16 +87,18 @@ Mensagem escondida: ola (011011110110110001100001)
 | ```-i```   | ```exemplos/original.png```  | Caminho para a imagem original, ou seja, naquela que se deseja esconder um determinado texto/imagem |
 | ```-o```   | ```exemplos/escondido.png```| Caminho para a imagem resultante, ou seja, onde e com qual nome salvarei a imagem resultante        |
 | ```-f```   | ```esconder```               | Procedimento de esconder o texto na imagem                                                          |
+| ```-t```   |             | Indica que irá esconder um texto                                                          |
 
 Após o comando executado, você verá que no diretório ```exemplos``` uma imagem ```escondido.png``` foi gerada,onde contém o texto que escondemos.
 
-## Recuperando texto de uma imagem
+### Recuperando texto de uma imagem
 Para recuperar uma imagem é bastante simples. Veja o exemplo a seguir:
 
 | Flag | Valor                  | Descrição                                                                                           |
 |------|------------------------|-----------------------------------------------------------------------------------------------------|
 | ```-i```   | ```exemplos/escondido.png```  | Caminho para a imagem com texto escondido, ou seja, naquela que se deseja revelar um determinado texto/imagem |
 | ```-f```   | ```revelar```               | Procedimento de revelar o texto da imagem                                                          |
+| ```-t```   |             | Indica que irá esconder um texto                                                          |
 
 ```sh
 python -m steg -i exemplos/original.png -f revelar
@@ -103,6 +107,38 @@ Texto revelado: ola
 ```
 
 Assim recuperamos o texto que escondemos!
+
+## Imagem
+### Escondendo uma imagem em outra imagem
+Para esconder uma imagem, você precisa ter uma imagem de no máximo 255x255. Nesse exemplo será utilizada uma imagem 50x50. Veja o comando a seguir:
+```sh
+python -m steg -i exemplos/original.png -o imagem_escondida.png -f esconder
+Digite o caminho da imagem que deseja esconder: exemplos/saitama.png
+Mensagem escondida: ... (bits removido por ser muito longo)
+```
+
+| Flag | Valor                  | Descrição                                                                                           |
+|------|------------------------|-----------------------------------------------------------------------------------------------------|
+| ```-i```   | ```exemplos/original.png```  | Caminho para a imagem original, ou seja, naquela que se deseja esconder um determinado texto/imagem |
+| ```-o```   | ```imagem_escondida.png```| Caminho para a imagem resultante, ou seja, onde e com qual nome salvarei a imagem resultante        |
+| ```-f```   | ```esconder```               | Procedimento de esconder o texto na imagem                                                          |
+
+Após o comando executado, você verá que no diretório do projeto haverá uma imagem ```imagem_escondida.png```, onde contém a imagem que escondemos.
+
+### Recuperando uma imagem de outra imagem
+Para recuperar uma imagem que foi escondida, é só trocar a ordem dos valores que foram inseridos na etapa anterior. Veja o comando a seguir:
+```sh
+python -m steg -i imagem_escondida.png -o imagem_revelada.png -f revelar 
+```
+
+| Flag | Valor                  | Descrição                                                                                           |
+|------|------------------------|-----------------------------------------------------------------------------------------------------|
+| ```-i```   | ```imagem_escondida.png```  | Caminho para a imagem original, ou seja, naquela que se deseja esconder um determinado texto/imagem |
+| ```-o```   | ```imagem_revelada.png```| Caminho para a imagem resultante, ou seja, onde e com qual nome salvarei a imagem resultante        |
+| ```-f```   | ```esconder```               | Procedimento de esconder o texto na imagem                                                          |
+
+Após o comando executado, você verá que no diretório do projeto haverá uma imagem ```imagem_revelada.png```, sendo a imagem original que havíamos escondido.
+
 
 # Referências
 - [What is Least significant bit algorithm in Information Security? (INGLÊS)](https://www.tutorialspoint.com/what-is-least-significant-bit-algorithm-in-information-security)
