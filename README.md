@@ -1,6 +1,9 @@
 # Esteganografia com método do bit menos significativo (LSB)
 Algoritmo de substituição do bit menos significativo de imagens para esconder texto/imagem dentro de outra imagem. Implementação feita em Python utilizando a biblioteca [```opencv-python```](https://github.com/opencv/opencv-python) para a manipulação das imagens.
 
+# AVISO
+**ESTE CÓDIGO DE ESTEGANOGRAFIA FOI DESENVOLVIDO EXCLUSIVAMENTE PARA FINS EDUCACIONAIS E DE APRENDIZADO. SEU USO É DESTINADO A ENTENDER OS CONCEITOS POR TRÁS DA TÉCNICA DE ESTEGANOGRAFIA DA SUBSTITUIÇÃO DO BIT MENOS SIGNIFICATIVO E SUA IMPLEMENTAÇÃO PRÁTICA. UTILIZAR ESSE CÓDIGO PARA ATIVIDADES ILEGAIS OU ANTIÉTICAS É ESTRITAMENTE PROIBIDO. NÃO ME RESPONSABILIZO PELO USO INDEVIDO DESTE CÓDIGO PARA ATIVIDADES ILEGAIS, ANTIÉTICAS OU PREJUDICIAIS. É IMPORTANTE RESPEITAR AS LEIS E OS DIREITOS DE PRIVACIDADE DE TERCEIROS AO UTILIZAR ESTE CÓDIGO. QUALQUER USO FORA DO CONTEXTO EDUCACIONAL É DE RESPONSABILIDADE EXCLUSIVA DO USUÁRIO.**
+
 ## Dependências
 - Python (versão >= 3.8)
 - [```opencv-python```](https://github.com/opencv/opencv-python)
