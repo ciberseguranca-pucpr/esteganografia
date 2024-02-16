@@ -12,7 +12,7 @@ PARSER = ArgumentParser("steg")
 PARSER.add_argument("-i", dest="imagem_entrada", help="Caminho para a imagem original", type=str, required=True)
 PARSER.add_argument("-o", dest="imagem_saida", help="Caminho para a imagem com texto escondido", type=str)
 PARSER.add_argument("-f", dest="funcao", choices=["esconder", "revelar"], help="Ação que deseja realizar", required=True)
-PARSER.add_argument("-t", dest="eh_texto", action='store_true', default=False)
+PARSER.add_argument("-t", dest="eh_texto", action='store_true', default=False, help="Flag que especifica se deseja esconder um texto ou imagem")
 
 ARGS = PARSER.parse_args()
 lsb = LSB(ARGS.imagem_entrada, ARGS.imagem_saida, tipo=Tipo.TEXTO if ARGS.eh_texto else Tipo.IMAGEM)
