@@ -36,11 +36,19 @@ def trata_entrada(prompt: str, tipo: type):
 
 def binario_para_int(n: str) -> int:
     return int(n, base=2)
+# 1.560.600
+# 35.066.496
 
 def imagem_para_bits(imagem: np.ndarray) -> str:
     # Os dois primeiros bytes serão utilizados para representar as dimensões da imagem
     # de saída. Portanto, o tamanho máximo de uma imagem para ser escondida será de 
     # 255x255.
+
+    if not _verifica_tamanho_correto(imagem):
+        altura, largura, _ = imagem.shape
+        print(f"Redimensionando imagem para 255x255 (antes: {altura}x{largura})")
+        imagem = cv2.resize(imagem, (255, 255), interpolation = cv2.INTER_AREA)
+
     altura, largura, _ = imagem.shape
     resultado = int_para_bin(altura) + int_para_bin(largura)
 
@@ -50,6 +58,17 @@ def imagem_para_bits(imagem: np.ndarray) -> str:
                 resultado += int_para_bin(imagem[i, j, ch])
     
     return resultado
+
+def _verifica_tamanho_correto(imagem: np.ndarray) -> bool:
+    altura, largura, _ = imagem.shape
+
+    return not (altura > 255 or largura > 255)
+
+def _verifica_qtde_bits(imagem: np.ndarray, bits: list) -> bool:
+    """ Função para verificar se a imagem original possui tamanho suficiente para esconder uma cadeia de bits """
+    altura, largura, canais = imagem.shape
+
+    return altura * largura * canais * 8 >= len(bits)
 
 class Tipo(Enum):
     IMAGEM = 1
@@ -73,7 +92,7 @@ class LSB:
 
         # Recupera as dimensões da imagem (primeiros dois bytes)
         altura_bin, largura_bin = "", ""
-        _, largura_orig, _ = imagem.shape
+        altura_orig, largura_orig, _ = imagem.shape
         ch = 0
         for i in range(16):
             pixel = imagem[0, i, ch]
@@ -83,10 +102,6 @@ class LSB:
                 altura_bin += bit
             else:
                 largura_bin += bit
-
-            if i % 8 == 0:
-                ch += 1
-
 
         altura = int(altura_bin,base=2)
         largura = int(largura_bin,base=2)
@@ -100,16 +115,14 @@ class LSB:
                 x = 0
                 y += 1
             
-            if ch == 3:
-                ch = 0
+            if y == altura_orig - 1:
+                y = 0
+                ch += 1
 
             if x < largura_orig - 1:
                 pixel = imagem[y, x, ch]
                 bits += str(pixel & 1)
                 x += 1
-            
-            if i % 8 == 0:
-                ch += 1
         
         # Converte subconjuntos de 8 em 8 bits para bytes e converte para base decimal
         _bytes = [int(bits[i:i+8], base=2) for i in range(0, len(bits), 8)]
@@ -144,10 +157,12 @@ class LSB:
             if x == largura - 1:
                 y += 1
                 x = 0
+
+            if y == altura - 1:
+                y = 0
+                ch += 1
             
             if x < largura-1:
-                if ch == 3:
-                    ch = 0
 
                 # Recupera pixel na coluna x, linha y e canal 0
                 pixel = imagem[y, x, ch]
@@ -155,14 +170,11 @@ class LSB:
                 # Recupera bit menos significativo
                 bits += str(pixel & 1)
 
-                if i % 8 == 0:
-                    ch += 1
-
                 # Incrementa as colunas visitadas
                 x += 1
 
             # Indica que todos os pixeis foram visitados
-            if y == altura:
+            if y == altura and ch == 3 and x == largura:
                 print("A imagem acabou! Abortando.")
                 exit(1)
         
@@ -183,10 +195,15 @@ class LSB:
         # Converte os dados de entrada em uma lista de bits
         bits = self._converte_dados(dados)
 
+        if not _verifica_qtde_bits(imagem, bits):
+            print(f"O tamanho da imagem original ({altura * largura * 3 * 8:,} bits) não é o suficiente para esconder {len(bits):,} bits.")
+            exit(1)
+
         # Variáveis para denotar qual pixel iremos alterar
         x = 0
         y = 0
         ch = 0
+        total_bits_hidden = 0
         for i in range(len(bits)):
             # Recupera bit da lista de bits e converte em inteiro
             bit = int(bits[i])
@@ -197,10 +214,11 @@ class LSB:
                 y += 1
                 x = 0
 
-            if x < largura-1:
+            if y == altura - 1:
+                y = 0
+                ch += 1
 
-                if ch == 3:
-                    ch = 0
+            if x < largura-1:
 
                 if bit == 1:
                     # Adicione um bit no pixel na coluna x, linha y e canal 0
@@ -209,15 +227,19 @@ class LSB:
                     # Remova um bit no pixel na coluna x, linha y e canal 0
                     imagem[y, x, ch] = imagem[y, x, ch] & 0xFFFFFFFE
 
-                if i % 8 == 0:
-                    ch += 1
-
                 x += 1
             
+            total_bits_hidden += 1
+            
             # Indica que todos os pixeis foram visitados
-            if y == altura - 1:
+            if y == altura and ch == 3 and x == largura:
                 print("A imagem acabou! Abortando.")
                 exit(1)
 
-        print(f"Mensagem escondida: {dados} ({bits})")
+        if self._tipo == Tipo.IMAGEM:
+            print("Imagem escondida com sucesso")
+        else:
+            print(f"Mensagem escondida: {dados} ({bits})")
+        
+        print(f"Total de bits escondidos: {total_bits_hidden:,}")
         cv2.imwrite(self._imagem_escondida, imagem)
