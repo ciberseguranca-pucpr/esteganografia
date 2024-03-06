@@ -80,7 +80,7 @@ options:
 Para esconder algum texto em uma imagem você deverá fornecer uma imagem como base presente no seu computador. Assim, ele irá inserir o texto digitado na imagem resultante. Veja o comando a seguir:
 
 ```sh
-python -m steg -i exemplos/original.png -o exemplos/escondido.png -f esconder
+python -m steg -i exemplos/original.png -o exemplos/escondido.png -f esconder -t
 Digite o texto que deseja esconder: ola
 Mensagem escondida: ola (011011110110110001100001)
 ```
@@ -104,7 +104,7 @@ Para recuperar uma imagem é bastante simples. Veja o exemplo a seguir:
 | ```-t```   |             | Indica que irá esconder um texto                                                          |
 
 ```sh
-python -m steg -i exemplos/original.png -f revelar
+python -m steg -i exemplos/original.png -f revelar -t
 Digite a quantidade de caracteres que deseja recuperar: 3 
 Texto revelado: ola
 ```
