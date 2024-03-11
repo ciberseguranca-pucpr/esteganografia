@@ -73,10 +73,11 @@ class Tipo(Enum):
     TEXTO = 2
 
 class LSB:
-    def __init__(self, imagem_original: str, imagem_escondida: str, tipo: Tipo=Tipo.IMAGEM) -> None:
+    def __init__(self, imagem_original: str, imagem_escondida: str, tipo: Tipo=Tipo.IMAGEM, api=True) -> None:
         self._imagem_original = imagem_original
         self._imagem_escondida = imagem_escondida
         self._tipo = tipo
+        self._api = api
 
     def _converte_dados(self, dados) -> object:
         if self._tipo == Tipo.IMAGEM:
@@ -85,7 +86,7 @@ class LSB:
         
         return texto_para_bits(dados)
 
-    def _revelar_imagem(self) -> None:
+    def _revelar_imagem(self, *args) -> None:
         imagem = cv2.imread(self._imagem_original)
 
         # Recupera as dimensões da imagem (primeiros dois bytes)
@@ -129,18 +130,19 @@ class LSB:
         # Salva imagem
         cv2.imwrite(self._imagem_escondida, resultado)
 
-    def revelar(self):
+    def revelar(self, *args):
         if self._tipo == Tipo.IMAGEM:
-            self._revelar_imagem()
+            return self._revelar_imagem(*args)
         else:
-            self._revelar_texto()
+            return self._revelar_texto(*args)
 
-    def _revelar_texto(self):
+    def _revelar_texto(self, qtde_caracter: int):
         # Carrega a imagem com (potencial) texto escondido
         imagem = cv2.imread(self._imagem_original)
         
         # Armazena a quantidade de caracteres que se deseja recuperar o valor original
-        qtde_caracter = trata_entrada("Digite a quantidade de caracteres que deseja recuperar: ", int)
+        if not self._api:
+            qtde_caracter = trata_entrada("Digite a quantidade de caracteres que deseja recuperar: ", int)
 
         # Variáveis para denotar qual pixel iremos alterar
         x = 0
@@ -178,6 +180,8 @@ class LSB:
         
         print(bits)
         print(f"Texto revelado: {converte_bits_texto(bits)}")
+        if self._api:
+            return converte_bits_texto(bits)
 
     def esconder(self, dados) -> None:
         if self._tipo == Tipo.IMAGEM and not isinstance(dados, np.ndarray):
