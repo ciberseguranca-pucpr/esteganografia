@@ -21,11 +21,8 @@ dependencies = [
   "opencv-python"
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]  # list of folders that contain the packages (["."] by default)
-include = ["stego"]  # package names should match these glob patterns (["*"] by default)
-exclude = ["exemplos"]  # exclude packages matching these glob patterns (empty by default)
-namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+[tool.setuptools]
+packages = ["steg"]
 
 [project.urls]
 Homepage = "https://github.com/ciberseguranca-pucpr/esteganografia"
