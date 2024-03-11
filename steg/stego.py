@@ -36,8 +36,6 @@ def trata_entrada(prompt: str, tipo: type):
 
 def binario_para_int(n: str) -> int:
     return int(n, base=2)
-# 1.560.600
-# 35.066.496
 
 def imagem_para_bits(imagem: np.ndarray) -> str:
     # Os dois primeiros bytes serão utilizados para representar as dimensões da imagem
