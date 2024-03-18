@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from .stego import LSB, Tipo
+from .stego import LSB, Tipo, trata_entrada
 from pathlib import Path
 
 import cv2
@@ -15,7 +15,7 @@ PARSER.add_argument("-f", dest="funcao", choices=["esconder", "revelar"], help="
 PARSER.add_argument("-t", dest="eh_texto", action='store_true', default=False, help="Flag que especifica se deseja esconder um texto ou imagem")
 
 ARGS = PARSER.parse_args()
-lsb = LSB(ARGS.imagem_entrada, ARGS.imagem_saida, tipo=Tipo.TEXTO if ARGS.eh_texto else Tipo.IMAGEM)
+lsb = LSB(ARGS.imagem_entrada, ARGS.imagem_saida, tipo=Tipo.TEXTO if ARGS.eh_texto else Tipo.IMAGEM, api=False)
 
 if ARGS.funcao == "esconder":
     if ARGS.eh_texto:
@@ -32,4 +32,8 @@ if ARGS.funcao == "esconder":
         lsb.esconder(img)
 
 elif ARGS.funcao == "revelar":
-    lsb.revelar()
+    qtde_caracter = None
+    if ARGS.eh_texto:
+        qtde_caracter = trata_entrada("Digite a quantidade de caracteres que deseja recuperar: ", int)
+        
+    lsb.revelar(qtde_caracter)

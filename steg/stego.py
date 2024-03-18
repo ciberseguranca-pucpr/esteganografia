@@ -50,23 +50,23 @@ def imagem_para_bits(imagem: np.ndarray) -> str:
     altura, largura, _ = imagem.shape
     resultado = int_para_bin(altura) + int_para_bin(largura)
 
-    for i in range(largura):
+    for ch in range(3):
         for j in range(altura):
-            for ch in range(3):
+            for i in range(largura):
                 resultado += int_para_bin(imagem[i, j, ch])
     
     return resultado
 
 def _verifica_tamanho_correto(imagem: np.ndarray) -> bool:
     altura, largura, _ = imagem.shape
-
+    
     return not (altura > 255 or largura > 255)
 
 def _verifica_qtde_bits(imagem: np.ndarray, bits: list) -> bool:
     """ Função para verificar se a imagem original possui tamanho suficiente para esconder uma cadeia de bits """
     altura, largura, canais = imagem.shape
 
-    return altura * largura * canais * 8 >= len(bits)
+    return altura * largura * canais * 8 > len(bits)
 
 class Tipo(Enum):
     IMAGEM = 1
@@ -92,7 +92,10 @@ class LSB:
         # Recupera as dimensões da imagem (primeiros dois bytes)
         altura_bin, largura_bin = "", ""
         altura_orig, largura_orig, _ = imagem.shape
+
         ch = 0
+        x  = 0
+        y  = 0
         for i in range(16):
             pixel = imagem[0, i, ch]
 
@@ -101,22 +104,23 @@ class LSB:
                 altura_bin += bit
             else:
                 largura_bin += bit
+            x += 1
 
         altura = int(altura_bin,base=2)
         largura = int(largura_bin,base=2)
-        x = 16
-        y = 0
         bits = ""
 
         # Mantemos a contagem de ch (canal) para continuar iterando
         for i in range(altura*largura*8*3):
+            if y == altura_orig - 1 and x == largura_orig - 1:
+                ch += 1
+
             if x == largura_orig - 1:
                 x = 0
                 y += 1
             
             if y == altura_orig - 1:
                 y = 0
-                ch += 1
 
             if x < largura_orig - 1:
                 pixel = imagem[y, x, ch]
@@ -140,10 +144,6 @@ class LSB:
         # Carrega a imagem com (potencial) texto escondido
         imagem = cv2.imread(self._imagem_original)
         
-        # Armazena a quantidade de caracteres que se deseja recuperar o valor original
-        if not self._api:
-            qtde_caracter = trata_entrada("Digite a quantidade de caracteres que deseja recuperar: ", int)
-
         # Variáveis para denotar qual pixel iremos alterar
         x = 0
         y = 0
@@ -151,7 +151,10 @@ class LSB:
         bits = "" # Armazena os bits recuperados
 
         altura, largura, _ = imagem.shape
-        for i in range(qtde_caracter * 8):
+        for _ in range(qtde_caracter * 8):
+            if y == altura - 1 and x == largura - 1:
+                ch += 1
+
             # Se x for igual a largura da imagem, então passe para a próxima linha
             # e redefina x para 0
             if x == largura - 1:
@@ -178,7 +181,6 @@ class LSB:
                 print("A imagem acabou! Abortando.")
                 exit(1)
         
-        print(bits)
         print(f"Texto revelado: {converte_bits_texto(bits)}")
         if self._api:
             return converte_bits_texto(bits)
@@ -190,6 +192,9 @@ class LSB:
         
         # Carregando imagem na memória
         imagem = cv2.imread(self._imagem_original)
+
+        # Removendo canal alpha
+        imagem = cv2.cvtColor(imagem, cv2.COLOR_RGBA2RGB)
 
         # Obtém dimensões da imagem
         altura, largura, _ = imagem.shape
@@ -210,6 +215,9 @@ class LSB:
             # Recupera bit da lista de bits e converte em inteiro
             bit = int(bits[i])
 
+            if y == altura - 1 and x == largura - 1:
+                ch += 1
+            
             # Se x for igual a largura da imagem, então passe para a próxima linha
             # e redefina x para 0
             if x == largura-1:
@@ -218,7 +226,6 @@ class LSB:
 
             if y == altura - 1:
                 y = 0
-                ch += 1
 
             if x < largura-1:
 
@@ -227,14 +234,17 @@ class LSB:
                     imagem[y, x, ch] = imagem[y, x, ch] | 1
                 else:
                     # Remova um bit no pixel na coluna x, linha y e canal 0
-                    imagem[y, x, ch] = imagem[y, x, ch] & 0xFFFFFFFE
+                    if imagem[y,x,ch] > 0:
+                        imagem[y, x, ch] = imagem[y, x, ch] & 0xFFFFFFFE
+                    else:
+                        imagem[y, x, ch] = imagem[y, x, ch] | 1
 
                 x += 1
             
             total_bits_hidden += 1
             
             # Indica que todos os pixeis foram visitados
-            if y == altura and ch == 3 and x == largura:
+            if y == altura - 1 and ch == 3 and x == largura - 1:
                 print("A imagem acabou! Abortando.")
                 exit(1)
 
