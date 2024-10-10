@@ -235,7 +235,7 @@ class LSB:
                 else:
                     # Remova um bit no pixel na coluna x, linha y e canal 0
                     if imagem[y,x,ch] > 0:
-                        imagem[y, x, ch] = imagem[y, x, ch] & 0xFFFFFFFE
+                        imagem[y, x, ch] = imagem[y, x, ch] & 0xFE
                     else:
                         imagem[y, x, ch] = imagem[y, x, ch] | 1
 
