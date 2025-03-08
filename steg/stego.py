@@ -1,4 +1,3 @@
-from email.mime import image
 from enum import Enum
 
 import cv2
